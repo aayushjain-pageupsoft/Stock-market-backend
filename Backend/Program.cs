@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,10 +29,10 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 // Add Identity
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
 })
     .AddEntityFrameworkStores<ApplicationDBContext>(); // Add Identity to the project
@@ -63,6 +64,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddScoped<IStockRepository, StockRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 

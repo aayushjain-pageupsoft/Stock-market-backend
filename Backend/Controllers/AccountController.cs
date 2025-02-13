@@ -1,4 +1,5 @@
 ﻿using Backend.Dtos.Account;
+using Backend.Interfaces;
 using Backend.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,8 +11,10 @@ namespace Backend.Controllers
     public class AccountController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
-        public AccountController(UserManager<AppUser> userManager) {
+        private readonly ITokenService _tokenService;
+        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService) {
             _userManager = userManager;
+            _tokenService = tokenService;
         }
 
         [HttpPost("register")]
@@ -30,9 +33,17 @@ namespace Backend.Controllers
 
                 if (createdUser.Succeeded)
                 {
-                    var roleResult = await _userManager.CreateAsync(appUser, "User");
-                    if (roleResult.Succeeded) return Ok("User Created Successfully");
-                    else return StatusCode(500, $"Failed to create user role :- {roleResult.Errors}");
+
+                    var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
+                    if (roleResult.Succeeded) return Ok(
+                            new NewUserDto
+                            {
+                                UserName = appUser.UserName,
+                                Email = appUser.Email,
+                                Token = _tokenService.CreateToken(appUser)
+                            }
+                        );
+                    else return StatusCode(500, $"Failed to create user role line 35:- {roleResult.Errors}");
                 }
                 else return StatusCode(500, $"Failed to create user :- {createdUser.Errors}");
             }
