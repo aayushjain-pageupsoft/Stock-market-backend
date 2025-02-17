@@ -4,6 +4,7 @@ namespace Backend.Models
 {
     public class AppUser : IdentityUser
     {
-        //Keeping everything as default
+        
+        public List<Portfolio> Portfolios { get; set; } = new List<Portfolio>();
     }
 }

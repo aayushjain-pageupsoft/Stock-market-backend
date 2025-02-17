@@ -6,6 +6,7 @@ using Backend.Mappers;
 using Microsoft.EntityFrameworkCore;
 using Backend.Interfaces;
 using Backend.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Backend.Controllers
 {
@@ -29,11 +30,12 @@ namespace Backend.Controllers
         /// </summary>
         /// <returns>List of Stocks</returns>
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState); // Check if the model state is valid
-            var stocks = await _stockRepo.GetAllAsync(query);
-            var stockDto =   stocks.Select(s => s.ToStockDto());
+            var stocks = await _stockRepo.GetAllAsync(query); // Get all stocks
+            var stockDto =   stocks.Select(s => s.ToStockDto()); // Convert the stock object to a desired type
             return Ok(stockDto);
         }
 
@@ -44,11 +46,12 @@ namespace Backend.Controllers
         /// <returns> A specific Stock Object</returns>
         [HttpGet]
         [Route("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState); // Check if the model state is valid
-            var stock = await _stockRepo.GetByIdAsync(id);
-            if (stock == null)
+            var stock = await _stockRepo.GetByIdAsync(id); // Get stock by id
+            if (stock == null) // Check if stock is not found
             {
                 return NotFound("Stock Not found");
             }
@@ -61,6 +64,7 @@ namespace Backend.Controllers
         /// <param name="stockDto"></param>
         /// <returns>the newly created stock item </returns>
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateStockRequestDto stockDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState); // Check if the model state is valid
@@ -80,6 +84,7 @@ namespace Backend.Controllers
         /// <returns> returns the updated stock item value object</returns>
         [HttpPut]
         [Route("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDto data)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState); // Check if the model state is valid
@@ -98,6 +103,7 @@ namespace Backend.Controllers
         /// <returns> </returns>
         [HttpDelete]
         [Route("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState); // Check if the model state is valid

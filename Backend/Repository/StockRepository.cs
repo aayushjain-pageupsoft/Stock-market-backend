@@ -15,14 +15,22 @@ namespace Backend.Repository
         {
             _dbcontext = dbcontext;
         }
-
+        /// <summary>
+        /// Create a new stock
+        /// </summary>
+        /// <param name="stock"></param>
+        /// <returns></returns>
         public async Task<Stock> CreateAsync(Stock stock)
         {
             await _dbcontext.Stocks.AddAsync(stock);
             await _dbcontext.SaveChangesAsync();
             return stock;
         }
-
+        /// <summary>
+        /// Delete a stock
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<Stock?> DeleteAsync(int id)
         {
             var stockModel = await _dbcontext.Stocks.FirstOrDefaultAsync(x => x.Id == id);
@@ -34,7 +42,11 @@ namespace Backend.Repository
             await _dbcontext.SaveChangesAsync();
             return stockModel;
         }
-
+        /// <summary>
+        /// Get all stocks
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         public async Task<List<Stock>> GetAllAsync(QueryObject query)
         {
             // Start with the base query
@@ -77,19 +89,40 @@ namespace Backend.Repository
                 .Include(c => c.Comments)
                 .ToListAsync();
         }
-
+        /// <summary>
+        ///     get stock by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<Stock?> GetByIdAsync(int id)
         {
+            // Include related entities
             return await _dbcontext.Stocks.Include(c => c.Comments).FirstOrDefaultAsync(x => x.Id == id);
         }
-
+        /// <summary>
+        /// Get stock by symbol
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
+        public async Task<Stock?> GetBySymbolAsync(string symbol)
+        {
+            return await _dbcontext.Stocks.FirstOrDefaultAsync(s => s.Symbol == symbol);
+        }
+        /// <summary>
+        /// Update a stock
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="stockDto"></param>
+        /// <returns></returns>
         public async Task<Stock?> UpdateAsync(int id, UpdateStockRequestDto stockDto)
         {
+            // Find the stock by id
             var stock = await _dbcontext.Stocks.FirstOrDefaultAsync(x => x.Id == id);
-            if (stock == null)
+            if (stock == null) // if stock is not found
             {
                 return null;
             }
+            // Update the stock properties
             stock.Symbol = stockDto.Symbol;
             stock.CompanyName = stockDto.CompanyName;
             stock.Purchase = stockDto.Purchase;
@@ -100,9 +133,14 @@ namespace Backend.Repository
             await _dbcontext.SaveChangesAsync();
             return stock;
         }
-
+        /// <summary>
+        /// Check if a stock exists
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<bool> StockExist(int id)
         {
+            // Check if the stock exists
             return await _dbcontext.Stocks.AnyAsync(x => x.Id == id);
         }
     }
