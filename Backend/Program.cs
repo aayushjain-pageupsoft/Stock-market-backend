@@ -9,12 +9,25 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Backend.Services;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+//builder.Services.AddControllers( options =>
+//{
+//    //Authorization Policy
+//    //Applies this policy globally and hence Authorize attribute is not required in each controller
+//    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build(); // Require the user to be authenticated
+//    options.Filters.Add(new AuthorizeFilter(policy));
+//})
+//    .AddXmlSerializerFormatters(); // Add XML Serializer
+
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -72,8 +85,8 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 // Add JWT Authentication
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme =  // Default scheme that will handle the authentication
-    options.DefaultChallengeScheme =    // Default scheme that will handle the challenge
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; // Default scheme that will handle the authentication
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Cookie Authentication scheme that will handle the challenge
     options.DefaultForbidScheme =  // Default scheme that will handle the forbid
     options.DefaultScheme =  // Default scheme that will handle the authentication and challenge
     options.DefaultSignInScheme =   // Default scheme that will handle the sign in

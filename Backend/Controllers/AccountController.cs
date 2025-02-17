@@ -24,13 +24,27 @@ namespace Backend.Controllers
             _signInManager = signInManager;
         }
 
+        /// <summary>
+        /// Check if email is already registered
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> IsEmailAlreadyRegistered(string email) { 
+            AppUser user = await _userManager.FindByEmailAsync(email);
+            return user == null ? Ok(true) : Ok(false);
+        }
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto model)
         {
             try
             {
                 //Check Model state
-                if (!ModelState.IsValid) return BadRequest(ModelState);
+                if (!ModelState.IsValid) { 
+                    string errorMessage = string.Join(" | ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                    return Problem(errorMessage, statusCode: 400); 
+                }
 
                 var appUser = new AppUser
                 {
